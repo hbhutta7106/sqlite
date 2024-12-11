@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:sqlite_crud/Screens/file_readeing_screen.dart';
 import 'package:sqlite_crud/Widgets/book_card.dart';
 import 'package:sqlite_crud/Widgets/custom_dialog.dart';
 import 'package:sqlite_crud/controller/book_controller.dart';
@@ -33,16 +33,27 @@ final  BookController controller = Get.put(BookController());
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) =>  CustomDialog(),
-          );
-        },
-        child: const Center(
-          child: Icon(Icons.add),
-        ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) =>  CustomDialog(),
+              );
+            },
+            child: const Center(
+              child: Icon(Icons.add),
+            ),
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton(onPressed: () {
+            // controller.changeColumnName();
+            Get.to(()=> FileDisplay());
+          },
+          child: const Center(child: Text("Change Column Name "),),)
+        ],
       ),
     );
   }

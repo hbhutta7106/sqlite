@@ -42,6 +42,15 @@ class CustomDialog extends StatelessWidget {
                     ),
                     
                   ),
+                  //  const  SizedBox(height: 10),
+                  // TextField(
+                  //   controller: controller.bookWriterController,
+                  //   decoration: const InputDecoration(
+                  //     labelText: "Writer Name",
+                  //     border: OutlineInputBorder(),
+                  //   ),
+                    
+                  // ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: controller.bookDescriptionController,

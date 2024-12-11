@@ -4,11 +4,13 @@ class BookModel {
   final String bookDescription;
   final String bookAuthor;
 
+
   BookModel({
     required this.bookName,
     required this.bookPrice,
     required this.bookDescription,
     required this.bookAuthor,
+ 
   });
 
   factory BookModel.fromJson(Map<String, dynamic> json) {
@@ -16,7 +18,8 @@ class BookModel {
       bookName: json['bookName'],
       bookPrice: json['bookPrice'],
       bookDescription: json['bookDescription'],
-      bookAuthor: json['bookAuthor']??"",
+      bookAuthor: json['z']??"",
+  
     );  
   }
 
@@ -26,6 +29,7 @@ class BookModel {
       'bookPrice': bookPrice,
       'bookDescription': bookDescription,
       'bookAuthor': bookAuthor,
+  
     };
   }
   BookModel copyWith({
@@ -39,7 +43,6 @@ class BookModel {
       bookPrice: bookPrice ?? this.bookPrice,
       bookDescription: bookDescription ?? this.bookDescription,
       bookAuthor: bookAuthor ?? this.bookAuthor,
-
     );
   }
 

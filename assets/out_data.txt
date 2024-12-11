@@ -1,0 +1,5 @@
+business_name,review_score,reviewers_count,category,tagline,closing,city,phone,data_phone,data_website
+A1 Tailors,3.7,44,Tailor,,Open ⋅ Closes 9:30 pm,Pakistan,923001234567,923001234567,null
+A2 Maharaja Tailor,4,33,Tailor,25+ years in business,Open ⋅ Closes 9:30 pm,Pakistan,923241234567,923241234567,null
+A4 Tailors,4.3,38,Mens Tailor,35+ years in business,Open ⋅ Closes 10 pm,Pakistan,923221234567,923221234567,null
+sdfds Ladies Tailor and Fashion Boutique,4.4,48,Tailor,15+ years in business,Open ⋅ Closes 11 pm,Pakistan,923331234567,923331234567,null

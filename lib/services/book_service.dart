@@ -1,3 +1,5 @@
+
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -18,11 +20,13 @@ class BookDataBaseService {
   Future<Database> get database async{
     if(_database!=null)
     {
-    await    addColumnIfNotExists(_database!, 'books', 'bookAuthor', 'TEXT');
+     await    addColumnIfNotExists(_database!, 'books', 'bookAuthor', 'TEXT');
+    // await   addColumnIfNotExists(_database!, 'books', 'bookPublishDate', 'TEXT');
     return _database!;
     }
     else{
       _database= await initDatabase();
+      await    addColumnIfNotExists(_database!, 'books', 'bookAuthor', 'TEXT');
       return _database!;
     }
 
@@ -32,7 +36,7 @@ class BookDataBaseService {
 
   Future<Database> initDatabase() async{
     String dbPath=await getDatabasesPath();
-    String path=join(dbPath,'dooks.db');
+    String path=join(dbPath,'books.db');
 
     return await openDatabase(
       path,
@@ -67,8 +71,9 @@ class BookDataBaseService {
 
 
 
-   Future<void> addAuthorToBooks(Database db, int version) async {
-    await db.execute('ALTER TABLE books ADD COLUMN bookAuthor TEXT IF NOT EXISTS');
+   Future<void> addPublishingDate(int version) async {
+    final db=await database;
+    await db.execute('ALTER TABLE books ADD COLUMN bookPublishDate TEXT IF NOT EXISTS');
   }
 
   Future<int> insertBook(BookModel bookModel)async
@@ -114,7 +119,7 @@ class BookDataBaseService {
   Future<int> updateBook(BookModel book) async
   {
 
-try {
+ try {
   final db = await database;
     return await db.update(
       'books',
@@ -130,5 +135,64 @@ try {
   }
 
 
+  Future<void> changeColumnNamebookAuthorTobookWriter() async
+  {
+    try {
+      final db=await database;
+      final result = await db.rawQuery('PRAGMA table_info (books)');
+      final listOfColumns=result.map((columnName)=>columnName['name'] as String).toList();
 
+      if(listOfColumns.contains('bookAuthor'))
+      {
+        await db.execute('ALTER TABLE books RENAME COLUMN bookAuthor TO bookWriter');
+      }else{
+        Get.snackbar("Error", "Column Not Found");
+      }
+    } catch (e) {
+     Get.snackbar("Error", "Error Found ${e.toString()}"); 
+    }
+
+  }
+
+
+
+Future<void> printWholeTableWithColumnsNames()async
+{
+
+  final db=await database;
+  List<Map<String, dynamic>> tables = await db.rawQuery('''
+    SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';
+  ''');
+
+  debugPrint("Tables and their columns:");
+
+  // Step 2: Loop through each table and get column details
+  for (var table in tables) {
+    String tableName = table['name'];
+    debugPrint("\nTable: $tableName");
+
+    // Query column information for the table
+    List<Map<String, dynamic>> columns = await db.rawQuery('PRAGMA table_info($tableName)');
+
+    debugPrint("Columns:");
+    for (var column in columns) {
+      debugPrint("- ${column['name']} (type: ${column['type']})");
+    }
+  }
+}
+
+Future<void> deleteExistingDatabase()async{
+
+ String dbPath=await getDatabasesPath();
+    String path=join(dbPath,'dooks.db');
+    await deleteDatabase(path);
+}
+
+
+Future<void >getDataBasePath() async
+{
+   String dbPath=await getDatabasesPath();
+    String path=join(dbPath,'dooks.db');
+    debugPrint("Path is $path");
+}
 }

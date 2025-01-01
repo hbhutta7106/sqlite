@@ -3,32 +3,142 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:get/get.dart';
+import 'package:sqlite_crud/Widgets/headers_dialog.dart';
+
 
 class FileController extends GetxController {
-  // List<String> list=["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o",];
 
-  File? file;
+
+  bool ? isContainHeaders;
+
+ 
+  List<dynamic> headers = [];
+  List<List<dynamic>> rows = [];
+  List<bool> selectedHeaders = [];
+  List<dynamic> choosenHeadersFromHeaderList=[];
+  List<List<dynamic>> choosenRows=[];
+   File? file;
   String? fileName;
-  var fileData;
   var csvData = [];
-
-  List<dynamic> rowValuesData = [];
   bool isloading = false;
+  bool showTable=false;
 
-  List<String> nonReadableValues = [];
+  
+   void selectHeadersAndTheirData(int index, bool value)
+   {
+      print(index);
+      
+      selectedHeaders[index]=value;
+      chooseRowsWithData(index);
+     
+        if(headers[index]==null||headers[index]==""){
+          
+          choosenHeadersFromHeaderList.add("Header${index+1}");
+        
+        }
+        else{
+         
+          choosenHeadersFromHeaderList.add(headers[index]);
+          
+        }
+        
+      
 
-  List<dynamic> nonReadableCharacters = [];
+        if(selectedHeaders[index]==false)
+        {
+        choosenHeadersFromHeaderList.remove(headers[index]);
+        }
+     
+      debugPrint("Choosen Headers are $choosenHeadersFromHeaderList");
+      update();
+
+   }
+  void chooseRowsWithData(int index)
+  {
+ 
+    for(int i=0;i<rows.length;i++)
+    {
+      
+    
+        if(rows[i][index]==null||rows[i][index]=="")
+        {
+          choosenRows[i].add("null");
+        }
+        else{
+          choosenRows[i].add(rows[i][index]);
+        }
+      
+    
+        if(selectedHeaders[index]==false)
+        {
+          print("The value which is to be removed ${rows[i][index]}");
+        
+        choosenRows[i].remove(rows[i][index]);
+        }
+      
+
+      print("The Rows are ${choosenRows[i]} and Length is ${choosenRows[i].length}");
+    }
+    
+    
+    update();
+  }
+
+  void clearData()
+  {
+    headers=[];
+    rows=[];
+    selectedHeaders=[];
+    choosenHeadersFromHeaderList=[];
+    choosenRows=[];
+    showTable=false;
+    isContainHeaders=null;
+    fileName=null;
+    csvData=[];
+
+    update();
+  }
+
+
+  void  checkContainHeaders(bool value)
+  {
+    isContainHeaders=value;
+    debugPrint("Headers Value is $isContainHeaders");
+    update();
+  }
+ void  showDataTable()
+  {
+    showTable=true;
+    update();
+  }
+
+  void showHeadersDialog()
+  {
+    Get.dialog(
+      Container(
+        height: 200,
+        width: 200,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          
+        ),
+        child:  HeadersDialog(),
+      )
+    );
+  }
+ 
+  
+
+ 
 
   void pickFile() async {
+ 
+
+  
     try {
-      // fileData = await rootBundle.loadString('assets/cost.csv');
-//   fileData = await rootBundle.loadString('assets/output-data.csv');
-//   //  fileData = await rootBundle.loadString('assets/out_data.txt');
-//   checkTheFileType(fileData);
-//  csvData = const CsvToListConverter(eol: "\n").convert(fileData);
-//   print(csvData);
+     
 
       final result = await FilePicker.platform.pickFiles(
         dialogTitle: "Pick CSV File",
@@ -48,6 +158,7 @@ class FileController extends GetxController {
           update();
 
           Get.snackbar("Success", "File picked: $fileName");
+           isloading = true;
 
           readFile();
         } else {
@@ -60,12 +171,13 @@ class FileController extends GetxController {
       Get.snackbar("Error!", "An unexpected error occurred: $e");
       debugPrint("FilePicker Error: $e");
     }
+    
   }
 
   void readFile() async {
     if (file != null) {
       //final input=file!.openRead();
-      isloading = true;
+     
       final fields = await file!.readAsString(encoding: latin1);
       final valuesOfFields=checkTheFileType( fields);
 
@@ -81,9 +193,16 @@ class FileController extends GetxController {
 
       isloading = false;
 
+      separateFileDataIntoHeadersAndRows();
+      debugPrint("CSV Data =${csvData.runtimeType}");
+
       for (int i = 0; i < csvData.length; i++) {
         debugPrint(csvData[i].toString());
-        print(csvData[i].length);
+        debugPrint(csvData.length.toString());
+      }
+      if(isContainHeaders==false)
+      {
+      showTable=true;
       }
       update();
     } else {
@@ -113,5 +232,32 @@ fileValues=fileContent.replaceAll("\r", "\r\n");
        fileValues="";
      }
     return fileValues;
+  }
+
+
+
+
+  void separateFileDataIntoHeadersAndRows()
+  {
+    if(isContainHeaders==true)
+    {
+      headers=csvData[0];
+      rows=csvData.sublist(1).cast<List<dynamic>>();
+      selectedHeaders=List.generate(headers.length, (index) => false);
+      
+     
+
+      showHeadersDialog();
+      choosenRows=List.generate(rows.length, (index) => []);
+
+      debugPrint("Rows are the  $rows");
+     
+    }
+    else
+    {
+      headers=[];
+      rows=csvData.cast<List<dynamic>>();
+    }
+    update();
   }
 }

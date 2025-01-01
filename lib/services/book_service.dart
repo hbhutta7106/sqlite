@@ -6,7 +6,7 @@ import 'package:path/path.dart';
 import 'package:sqlite_crud/Models/book_model.dart';
 class BookDataBaseService {
 
-  static final BookDataBaseService _dataBaseService=BookDataBaseService._bookDataBaseService();
+  static final BookDataBaseService _dataBaseService = BookDataBaseService._bookDataBaseService();
 
   static  Database? _database;
   BookDataBaseService._bookDataBaseService();
@@ -17,16 +17,18 @@ class BookDataBaseService {
   {
     return _dataBaseService;
   }
+
+
   Future<Database> get database async{
     if(_database!=null)
     {
-     await    addColumnIfNotExists(_database!, 'books', 'bookAuthor', 'TEXT');
+     //await    addColumnIfNotExists(_database!, 'books', 'bookAuthor', 'TEXT');
     // await   addColumnIfNotExists(_database!, 'books', 'bookPublishDate', 'TEXT');
     return _database!;
     }
     else{
       _database= await initDatabase();
-      await    addColumnIfNotExists(_database!, 'books', 'bookAuthor', 'TEXT');
+     // await    addColumnIfNotExists(_database!, 'books', 'bookAuthor', 'TEXT');
       return _database!;
     }
 

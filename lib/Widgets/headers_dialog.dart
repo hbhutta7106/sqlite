@@ -4,6 +4,7 @@ import 'package:sqlite_crud/controller/file_controller.dart';
 
 import '../controller/data_saving_controller.dart';
 
+// ignore: must_be_immutable
 class HeadersDialog extends StatelessWidget {
   HeadersDialog({super.key, this.dialogFor});
   String? dialogFor;
@@ -120,11 +121,14 @@ class HeadersDialog extends StatelessWidget {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text("Existing Headers")),
+                        columns: [
+                          DataColumn(
+                              label: _dataSaving.existingColumns.isEmpty
+                                  ? const Text("No Existing Headers")
+                                  : const Text("Existing Headers")),
                         ],
-                        rows: List.generate(
-                            databaseController.existingColumns.length, (index) {
+                        rows: List.generate(_dataSaving.existingColumns.length,
+                            (index) {
                           return DataRow(cells: [
                             DataCell(Text(databaseController.existingColumns
                                 .elementAt(index))),
@@ -138,11 +142,14 @@ class HeadersDialog extends StatelessWidget {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text("New Headers")),
+                        columns: [
+                          DataColumn(
+                              label: _dataSaving.newHeaders.isEmpty
+                                  ? const Text("Headers Already exists")
+                                  : const Text("New Headers")),
                         ],
-                        rows: List.generate(
-                            databaseController.newHeaders.length, (index) {
+                        rows: List.generate(_dataSaving.newHeaders.length,
+                            (index) {
                           return DataRow(cells: [
                             DataCell(Text(databaseController.newHeaders
                                 .elementAt(index))),
@@ -160,10 +167,19 @@ class HeadersDialog extends StatelessWidget {
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black),
-                        onPressed: () {
-                          _dataSaving.testingFunction(
-                            _dataSaving.selectedTableName,_fileController.choosenHeadersFromHeaderList,_fileController.choosenRows
-                          );
+                        onPressed: () async {
+                          _dataSaving
+                              .insertColumns(
+                                  _fileController.choosenHeadersFromHeaderList,
+                                  _dataSaving.selectedTableName)
+                              .then((value) {
+                            _dataSaving.insertDataIntoTable(
+                                _dataSaving.selectedTableName,
+                                _fileController.choosenHeadersFromHeaderList,
+                                _fileController.choosenRows);
+                            _dataSaving.clearController();
+                            Get.back();
+                          });
                         },
                         child: const Padding(
                           padding: EdgeInsets.all(8.0),
@@ -177,13 +193,22 @@ class HeadersDialog extends StatelessWidget {
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black),
-                        onPressed: () {
+                        onPressed: () async {
+                           _dataSaving.insertIntoTableWithOutNewHeaders(
+                        _fileController.choosenHeadersFromHeaderList,
+                        _fileController.choosenRows,
+                        _dataSaving.selectedTableName,
+                        );
+                          //_dataSaving.deleteDatabase();
+                          await _dataSaving.getAllDataFromTable(
+                              _dataSaving.selectedTableName.toString());
+                          _dataSaving.clearController();
                           Get.back();
                         },
                         child: const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Text(
-                            "No ",
+                            "No",
                             style: TextStyle(color: Colors.white),
                           ),
                         ))),

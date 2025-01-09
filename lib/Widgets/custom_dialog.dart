@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:sqlite_crud/controller/book_controller.dart';
 import 'package:sqlite_crud/controller/data_saving_controller.dart';
 
+// ignore: must_be_immutable
 class CustomDialog extends StatelessWidget {
    CustomDialog({super.key,this.dialogfor});
  final BookController bookController = Get.put(BookController());

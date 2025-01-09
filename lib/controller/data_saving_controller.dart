@@ -38,45 +38,92 @@ class DataSavingController extends GetxController {
     await _fileService.deleteDatabaseFile('tailors.db');
   }
 
-  void getAllExistingHeaders() async {
-    var setOfExistingColumns = await _fileService.getExistingColumns();
-    existingColumns = setOfExistingColumns.toList();
+  Future<void> getAllExistingColumns(String tableName) async {
+    var setOfExistingColumns = await _fileService.getExistingColumns(tableName);
+
+    existingColumns = setOfExistingColumns
+        .where((column) => column != "id") // Exclude "id" column
+        .toList();
     update();
   }
 
   void getNewHeaders() {
+    debugPrint("existing headers are $existingColumns");
     for (int i = 0;
         i < _fileController.choosenHeadersFromHeaderList.length;
         i++) {
       if (!existingColumns
-              .contains(_fileController.choosenHeadersFromHeaderList[i]) &&
-          !newHeaders
-              .contains(_fileController.choosenHeadersFromHeaderList[i])) {
+          .contains(_fileController.choosenHeadersFromHeaderList[i])) {
         newHeaders.add(_fileController.choosenHeadersFromHeaderList[i]);
       }
     }
     update();
   }
 
-  void testingFunction(
+  Future<void> insertColumns(
+      List<dynamic> columnsToAdd, String tableName) async {
+    await _fileService.insertColumns(
+      columnsToAdd,
+      tableName,
+    );
+    debugPrint("Columns has been added ");
+  }
+
+  void insertDataIntoTable(
       String tableName, List<dynamic> columns, List<List<dynamic>> rows) async {
     await _fileService.insertDataIntoSqlite(tableName, columns, rows);
-    // List<List<String>> rows = [
-    //   ["a", "b", "c", "d"],
-    //   ["a", "b", "c", "d"],
-    //   ["a", "b", "c", "d"]
-    // ];
-    // List<String> columns = ["Hanan", "Arshman", "Subhan"];
+  }
 
-    // for (int i = 0; i < columns.length; i++) {
+  void clearController() {
+    newHeaders = [];
+    existingColumns = [];
+    update();
+  }
 
-    //   for (int j = 0; j < rows.length; j++) {
+  Future<void> getAllDataFromTable(String tableName) async {
+    var list = await _fileService.getAllDataFromTable(tableName);
+    debugPrint("$list");
+  }
 
-    //     debugPrint(
-    //         "The Column is ${columns[i]} and the Row value is ${rows[j][i]}");
-    //   }
-    //   debugPrint("Next Columns Data Start");
-    // }
+  Future<void> insertIntoTableWithOutNewHeaders(
+    List<dynamic> columns,
+    List<List<dynamic>> rows,
+    String tableName,
+  ) async {
+    final Map<String, List<dynamic>> rowDataMap =
+        {}; // Corrected type for value
+    var keysToRemove = [];
+
+    for (int i = 0; i < columns.length; i++) {
+      List<dynamic> columnData = []; // To hold all row values for this column
+
+      for (int j = 0; j < rows.length; j++) {
+        columnData.add(rows[j][i]); // Add each row's value for this column
+      }
+
+      rowDataMap[columns[i]] =
+          columnData; // Map column to all values in that column
+    }
+
+    // For debugging, print the map to verify correct insertion
+    rowDataMap.forEach((key, value) {
+      if (!existingColumns.contains(key)) {
+        keysToRemove.add(key);
+      }
+    });
+    for (var key in keysToRemove) {
+      rowDataMap.remove(key);
+    }
+
+    rowDataMap.forEach((key, value) {
+      debugPrint("The Key is $key and Value is $value");
+    });
+
+    rowDataMap.forEach((key, value) async {
+      for (int i = 0; i < value.length; i++) {
+        await _fileService.insertIntoTable(tableName, key, value[i].toString());
+      }
+    });
   }
 }
 

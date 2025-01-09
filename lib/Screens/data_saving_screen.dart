@@ -3,10 +3,11 @@ import 'package:get/get.dart';
 import 'package:sqlite_crud/Widgets/custom_dialog.dart';
 import 'package:sqlite_crud/Widgets/headers_dialog.dart';
 import 'package:sqlite_crud/controller/data_saving_controller.dart';
+import 'package:sqlite_crud/controller/file_controller.dart';
 
 class DataSavingSreen extends StatelessWidget {
-  const DataSavingSreen({super.key});
-
+  DataSavingSreen({super.key});
+  final FileController _fileController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,10 +40,15 @@ class DataSavingSreen extends StatelessWidget {
                   title: Text(controller.tables[index].toUpperCase()),
                   splashColor: Colors.redAccent[100],
                   shape: Border.all(color: Colors.black, width: 1),
-                  onTap: () {
-                    controller.getAllExistingHeaders();
-                    controller.getNewHeaders();
-                    controller.selecTable(controller.tables[index].toString());
+                  onTap: () async {
+                    await controller
+                        .getAllExistingColumns(controller.tables[index])
+                        .then((value) {
+                         
+                     controller.getNewHeaders();
+                      controller
+                         .selecTable(controller.tables[index].toString());
+                    });
 
                     Get.dialog(
                         barrierDismissible: false,
@@ -70,7 +76,8 @@ class DataSavingSreen extends StatelessWidget {
                     backgroundColor: Colors.black,
                   ),
                   onPressed: () {
-                    Get.dialog(CustomDialog(dialogfor: "table"));
+                    
+                     Get.dialog(CustomDialog(dialogfor: "table"));
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(15.0),

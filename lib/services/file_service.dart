@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
@@ -51,16 +52,16 @@ class FileService {
     ''');
   }
 
-  Future<Set<String>> getExistingColumns() async {
+  Future<Set<String>> getExistingColumns(String tableName) async {
     final db = await database;
     List<Map<String, dynamic>> columns =
-        await db.rawQuery("PRAGMA table_info(tailors)");
+        await db.rawQuery("PRAGMA table_info($tableName)");
     final existingColumns = columns.map((row) => row['name'] as String).toSet();
     return existingColumns;
   }
 
-  Future<bool> checkColumnExist(String columnName) async {
-    Set<String> existingColumns = await getExistingColumns();
+  Future<bool> checkColumnExist(String columnName, String tableName) async {
+    Set<String> existingColumns = await getExistingColumns(tableName);
 
     if (existingColumns.contains(columnName)) {
       return true;
@@ -69,34 +70,63 @@ class FileService {
     }
   }
 
-  Future<void> insertColumns(List<dynamic> columnsToAdd) async {
-    final db = await database;
-    for (int i = 0; i < columnsToAdd.length; i++) {
-      if (await checkColumnExist(columnsToAdd[i]) == false) {
-        await db
-            .execute('ALTER TABLE tailors ADD COLUMN ${columnsToAdd[i]} TEXT');
-      } else {
-        debugPrint("Column Already Exist in the Table ${columnsToAdd[i]}");
-      }
-    }
-  }
-
-  Future<void> insertDataIntoSqlite(
-      String tableName, List<dynamic> columns, List<List<dynamic>> rows) async {
-    final db = await database;
-
+  Future<void> insertColumns(
+      List<dynamic> columnsToAdd, String tableName) async {
     try {
-      for (int i = 0; i < columns.length; i++) {
-        for (int j = 0; j < rows.length; j++) {
-          // await db.rawInsert(
-          //     "INSERT INTO $tableName (${columns[i]}) VALUES (${rows[j][i]})");
+      final db = await database;
 
-          debugPrint(
-              "The Column is ${columns[i]} and the Row value is ${rows[j][i]}");
+      for (int i = 0; i < columnsToAdd.length; i++) {
+        if (await checkColumnExist(columnsToAdd[i], tableName) == false) {
+          await db.execute(
+              'ALTER TABLE $tableName ADD COLUMN ${columnsToAdd[i].toString()} TEXT');
+        } else {
+          debugPrint("Column Already Exist in the Table ${columnsToAdd[i]}");
         }
       }
     } catch (e) {
       debugPrint("Error is $e");
+    }
+  }
+
+  void printPretty(Map<String, dynamic> map) {
+    // String prettyJson = jsonEncode(map);
+    String prettyString = const JsonEncoder.withIndent('  ')
+        .convert(map); // 2 spaces for indentation
+    debugPrint(prettyString); // Print the formatted map
+  }
+
+  Future<void> insertDataIntoSqlite(
+      String tableName, List<dynamic> columns, List<List<dynamic>> rows) async {
+   // final db = await database;
+
+    try {
+      for (int i = 0; i < columns.length; i++) {
+        for (int j = 0; j < rows.length; j++) {
+         await insertIntoTable(tableName, columns[i], rows[j][i]);
+        }
+      }
+    } catch (e) {
+      debugPrint("Error is $e");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAllDataFromTable(
+      String tableName) async {
+    final db = await database; // Make sure the database instance is initialized
+
+    try {
+      // Retrieve all rows from the table
+      List<Map<String, dynamic>> result =
+          await db.rawQuery('SELECT * FROM tailors');
+
+      // You can return the result to the caller or process it as needed
+      for (int i = 0; i < result.length; i++) {
+        debugPrint("The value at the index$i is ${result[i]}");
+      }
+      return result;
+    } catch (e) {
+      debugPrint("Error retrieving data: $e");
+      return [];
     }
   }
 
@@ -108,9 +138,9 @@ class FileService {
 
       // Delete the database
       await deleteDatabase(path);
-      print("Database $dbName deleted successfully.");
+      debugPrint("Database $dbName deleted successfully.");
     } catch (e) {
-      print("Error deleting database: $e");
+      debugPrint("Error deleting database: $e");
     }
   }
 
@@ -128,5 +158,12 @@ class FileService {
   ''');
     List<String> tableNames = result.map((e) => e['name'].toString()).toList();
     return tableNames;
+  }
+
+  Future<void> insertIntoTable(
+      String tableName, String columnName, String rowValue) async {
+    final db = await database;
+    String query = 'INSERT INTO $tableName ($columnName) VALUES ("$rowValue")';
+    await db.rawInsert(query);
   }
 }

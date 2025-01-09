@@ -28,7 +28,7 @@ class FileController extends GetxController {
   
    void selectHeadersAndTheirData(int index, bool value)
    {
-      print(index);
+      debugPrint(index.toString());
       
       selectedHeaders[index]=value;
       chooseRowsWithData(index);
@@ -73,13 +73,13 @@ class FileController extends GetxController {
     
         if(selectedHeaders[index]==false)
         {
-          print("The value which is to be removed ${rows[i][index]}");
+          debugPrint("The value which is to be removed ${rows[i][index]}");
         
         choosenRows[i].remove(rows[i][index]);
         }
       
 
-      print("The Rows are ${choosenRows[i]} and Length is ${choosenRows[i].length}");
+      debugPrint("The Rows are ${choosenRows[i]} and Length is ${choosenRows[i].length}");
     }
     
     

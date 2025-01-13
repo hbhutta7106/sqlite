@@ -3,14 +3,21 @@ import 'package:get/get.dart';
 import 'package:sqlite_crud/Screens/data_saving_screen.dart';
 import 'package:sqlite_crud/controller/file_controller.dart';
 
-class FileDisplay extends StatelessWidget {
-  FileDisplay({super.key});
+class FileDisplay extends StatefulWidget {
+  const FileDisplay({super.key});
+
+  @override
+  State<FileDisplay> createState() => _FileDisplayState();
+}
+
+class _FileDisplayState extends State<FileDisplay> {
   final FileController _fileController = Get.put(FileController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("File and its Data "),
+        title: const Text("File and its Data"),
         centerTitle: true,
       ),
       bottomNavigationBar: Padding(
@@ -93,10 +100,12 @@ class FileDisplay extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
+
+
+                
                 _fileController.isloading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
+                    ?  const Center(
+                        child:Text("Loading Data...", style: TextStyle(fontSize: 16),),)
                     : _fileController.csvData.isEmpty
                         ? Column(
                             children: [
@@ -144,7 +153,14 @@ class FileDisplay extends StatelessWidget {
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.black),
                                   onPressed: () {
-                                    _fileController.pickFile();
+                                    if(_fileController.isContainHeaders!=null)
+                                    {
+                                      _fileController.pickFile();
+                                    }
+                                    else{
+                                      Get.snackbar("Error", "Please Select the Headers Value", backgroundColor: Colors.red, colorText: Colors.white);
+                                    }
+
                                   },
                                   child: const Center(
                                     child: Text(
@@ -159,48 +175,85 @@ class FileDisplay extends StatelessWidget {
                         : _fileController.showTable
                             ? SizedBox(
                                 width: MediaQuery.of(context).size.width,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: DataTable(
-                                      columns: _fileController
-                                              .choosenHeadersFromHeaderList
-                                              .isEmpty
-                                          ? List.generate(
-                                              _fileController.rows[0].length,
-                                              (index) {
-                                              return DataColumn(
-                                                  label: Text(
-                                                      "Column ${index + 1}"));
-                                            })
-                                          : List.generate(
-                                              _fileController
+                                height: MediaQuery.of(context).size.height,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: InteractiveViewer(
+                                    panEnabled: true,
+                                     // Enable panning
+                                      scaleEnabled: true, // Enable zooming
+                                      minScale: 0.5,
+                                      maxScale: 3,
+                                    
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: DataTable(
+                                        border: TableBorder.all(
+                                            color: Colors.black, width: 1),
+                                                                      
+                                          columns: _fileController
                                                   .choosenHeadersFromHeaderList
-                                                  .length, (index) {
-                                              return DataColumn(
-                                                  label: Text(_fileController
-                                                      .choosenHeadersFromHeaderList[
-                                                          index]
-                                                      .toString()));
-                                            }),
-                                      rows: fileController.choosenRows.every(
-                                              (subList) => subList.isEmpty)
-                                          ? _fileController.rows.map((element) {
-                                              return DataRow(
-                                                  cells: List.generate(
-                                                      element.length, (index) {
-                                                return DataCell(Text(
-                                                    element[index].toString()));
-                                              }));
-                                            }).toList()
-                                          : _fileController.choosenRows
-                                              .map((element) {
-                                              return DataRow(
-                                                  cells: List.generate(
-                                                      element.length, (index) {
-                                                return DataCell(Text(
-                                                    element[index].toString()));
-                                              }));
-                                            }).toList()),
+                                                  .isEmpty
+                                              ? List.generate(
+                                                  _fileController.rows[0].length,
+                                                  (index) {
+                                                  return DataColumn(
+                                                      label: SizedBox(
+                                                        width: 50,
+                                                        child: FittedBox(
+                                                          fit: BoxFit.scaleDown,
+                                                          child: Text(
+                                                              "Column ${index + 1}", overflow: TextOverflow.visible,),
+                                                        ),
+                                                      ));
+                                                })
+                                              : List.generate(
+                                                  _fileController
+                                                      .choosenHeadersFromHeaderList
+                                                      .length, (index) {
+                                                  return DataColumn(
+                                                      label: SizedBox(
+                                                        width: 50,
+                                                        child: Text(
+                                                          overflow: TextOverflow.ellipsis,
+                                                          _fileController
+                                                            .choosenHeadersFromHeaderList[
+                                                                index]
+                                                            .toString()),
+                                                      ));
+                                                }),
+                                          rows: fileController.choosenRows.every(
+                                                  (subList) => subList.isEmpty)
+                                              ? _fileController.rows.map((element) {
+                                                  return DataRow(
+                                                      cells: List.generate(
+                                                          element.length, (index) {
+                                                    return DataCell(SizedBox(
+                                                      width: 50,
+                                                      child: Text(
+                                                        overflow: TextOverflow.clip,
+                                                          element[index].toString()),
+                                                    ));
+                                                  }));
+                                                }).toList()
+                                              : _fileController.choosenRows
+                                                  .map((element) {
+                                                  return DataRow(
+                                                      cells: List.generate(
+                                                          element.length, (index) {
+                                                    return DataCell(SizedBox(
+                                                      width: 50,
+                                                      child: FittedBox(
+                                                        fit: BoxFit.scaleDown,
+                                                        child: Text(
+                                                          overflow: TextOverflow.visible,
+                                                            element[index].toString()),
+                                                      ),
+                                                    ));
+                                                  }));
+                                                }).toList()),
+                                    ),
+                                  ),
                                 ),
                               )
                             : const Text("Waiting for Data to Load"),

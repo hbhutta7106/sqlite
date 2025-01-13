@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:sqlite_crud/controller/file_controller.dart';
 
 import '../controller/data_saving_controller.dart';
@@ -13,13 +14,25 @@ class HeadersDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(
-          dialogFor != null ? dialogFor!.toUpperCase() : "Header Checking"),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+              dialogFor != null ? dialogFor!.toUpperCase() : "Header Checking"),
+          IconButton(onPressed: ()
+          {   
+          _fileController.goBack(context);
+          
+          
+          }, icon:const  Icon(Icons.close)),
+        ],
+      ),
       content: GetBuilder<FileController>(builder: (controller) {
         return SingleChildScrollView(
           child: dialogFor != null
               ? headerSeletion()
-              : Column(
+              : 
+             _fileController.isloading? Center(child:LoadingAnimationWidget.flickr(leftDotColor: Colors.red, rightDotColor: Colors.black, size: 35)): Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: controller.isContainHeaders != null &&
@@ -52,8 +65,15 @@ class HeadersDialog extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.black),
                               onPressed: () {
-                                Navigator.of(context).pop();
-                                controller.showDataTable();
+                                 Navigator.of(context).pop();
+                                if(controller.choosenHeadersFromHeaderList.isNotEmpty){
+                                  
+                               
+                                controller.showDataTable(true);
+                                }
+                                else{
+                                  Get.snackbar("Choose Headers", "Please Choose Headers",backgroundColor: Colors.red,colorText: Colors.white);
+                                }
                               },
                               child: const Center(
                                 child: Text(
@@ -90,6 +110,7 @@ class HeadersDialog extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red),
                               onPressed: () {
+
                                 Get.snackbar("Choose File",
                                     "You can choose Your File Now");
                               },
@@ -199,7 +220,7 @@ class HeadersDialog extends StatelessWidget {
                         _fileController.choosenRows,
                         _dataSaving.selectedTableName,
                         );
-                          //_dataSaving.deleteDatabase();
+                         _dataSaving.deleteDatabase();
                           await _dataSaving.getAllDataFromTable(
                               _dataSaving.selectedTableName.toString());
                           _dataSaving.clearController();

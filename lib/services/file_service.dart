@@ -36,11 +36,7 @@ class FileService {
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE tailors (
-        id INTEGER PRIMARY KEY AUTOINCREMENT
-      )
-    ''');
+    
   }
 
   Future<void> createTable(String tableName) async {
@@ -84,7 +80,7 @@ class FileService {
         }
       }
     } catch (e) {
-      debugPrint("Error is $e");
+      debugPrint("Error is this  $e");
     }
   }
 
@@ -102,11 +98,11 @@ class FileService {
     try {
       for (int i = 0; i < columns.length; i++) {
         for (int j = 0; j < rows.length; j++) {
-         await insertIntoTable(tableName, columns[i], rows[j][i]);
+         await insertIntoTable(tableName, columns[i], rows[j][i].toString());
         }
       }
     } catch (e) {
-      debugPrint("Error is $e");
+      debugPrint("Error is this not $e");
     }
   }
 

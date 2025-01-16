@@ -96,7 +96,7 @@ class FileController extends GetxController {
 
   void checkContainHeaders(bool value) {
     isContainHeaders = value;
-    debugPrint("Headers Value is $isContainHeaders");
+    // debugPrint("Headers Value is $isContainHeaders");
     update();
   }
 

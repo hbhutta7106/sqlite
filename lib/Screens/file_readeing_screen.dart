@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sqlite_crud/Screens/data_saving_screen.dart';
+import 'package:sqlite_crud/Widgets/file_header_dialog.dart';
 import 'package:sqlite_crud/controller/file_controller.dart';
 
 class FileDisplay extends StatefulWidget {
@@ -57,7 +58,7 @@ class _FileDisplayState extends State<FileDisplay> {
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.black),
                             onPressed: () {
-                              Get.to(() =>  DataSavingSreen());
+                              Get.to(() => DataSavingSreen());
                             },
                             child: const Padding(
                               padding: EdgeInsets.all(10.0),
@@ -100,67 +101,32 @@ class _FileDisplayState extends State<FileDisplay> {
                 const SizedBox(
                   height: 20,
                 ),
-
-
-                
                 _fileController.isloading
-                    ?  const Center(
-                        child:Text("Loading Data...", style: TextStyle(fontSize: 16),),)
+                    ? const Center(
+                        child: Text(
+                          "Loading Data...",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      )
                     : _fileController.csvData.isEmpty
                         ? Column(
                             children: [
-                              const SizedBox(
-                                child: Text("No file is Selcted "),
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const SizedBox(height: 10),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Text("File Contain Headers?"),
-                                    const SizedBox(
-                                      width: 30,
-                                    ),
-                                    const Text("Yes"),
-                                    Radio<bool>(
-                                      value: true,
-                                      groupValue:
-                                          _fileController.isContainHeaders,
-                                      onChanged: (value) {
-                                        _fileController
-                                            .checkContainHeaders(value!);
-                                      },
-                                    ),
-                                    const Text("No"),
-                                    Radio<bool>(
-                                      value: false,
-                                      groupValue:
-                                          _fileController.isContainHeaders,
-                                      onChanged: (value) {
-                                        _fileController
-                                            .checkContainHeaders(value!);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
                               ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.black),
                                   onPressed: () {
-                                    if(_fileController.isContainHeaders!=null)
-                                    {
-                                      _fileController.pickFile();
-                                    }
-                                    else{
-                                      Get.snackbar("Error", "Please Select the Headers Value", backgroundColor: Colors.red, colorText: Colors.white);
-                                    }
-
+                                    Get.dialog(
+                                      ChooseHeaderDialog(),
+                                    );
+                                    // if (_fileController.isContainHeaders !=
+                                    //     null) {
+                                    //   // _fileController.pickFile();
+                                    // } else {
+                                    //   Get.snackbar("Error",
+                                    //       "Please Select the Headers Value",
+                                    //       backgroundColor: Colors.red,
+                                    //       colorText: Colors.white);
+                                    // }
                                   },
                                   child: const Center(
                                     child: Text(
@@ -180,17 +146,16 @@ class _FileDisplayState extends State<FileDisplay> {
                                   scrollDirection: Axis.vertical,
                                   child: InteractiveViewer(
                                     panEnabled: true,
-                                     // Enable panning
-                                      scaleEnabled: true, // Enable zooming
-                                      minScale: 0.5,
-                                      maxScale: 3,
-                                    
+                                    // Enable panning
+                                    scaleEnabled: true, // Enable zooming
+                                    minScale: 0.5,
+                                    maxScale: 3,
+
                                     child: SingleChildScrollView(
                                       scrollDirection: Axis.horizontal,
                                       child: DataTable(
-                                        border: TableBorder.all(
-                                            color: Colors.black, width: 1),
-                                                                      
+                                          border: TableBorder.all(
+                                              color: Colors.black, width: 1),
                                           columns: _fileController
                                                   .choosenHeadersFromHeaderList
                                                   .isEmpty
@@ -199,13 +164,16 @@ class _FileDisplayState extends State<FileDisplay> {
                                                   (index) {
                                                   return DataColumn(
                                                       label: SizedBox(
-                                                        width: 50,
-                                                        child: FittedBox(
-                                                          fit: BoxFit.scaleDown,
-                                                          child: Text(
-                                                              "Column ${index + 1}", overflow: TextOverflow.visible,),
-                                                        ),
-                                                      ));
+                                                    width: 50,
+                                                    child: FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      child: Text(
+                                                        "Column ${index + 1}",
+                                                        overflow: TextOverflow
+                                                            .visible,
+                                                      ),
+                                                    ),
+                                                  ));
                                                 })
                                               : List.generate(
                                                   _fileController
@@ -213,26 +181,32 @@ class _FileDisplayState extends State<FileDisplay> {
                                                       .length, (index) {
                                                   return DataColumn(
                                                       label: SizedBox(
-                                                        width: 50,
-                                                        child: Text(
-                                                          overflow: TextOverflow.ellipsis,
-                                                          _fileController
+                                                    width: 50,
+                                                    child: Text(
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        _fileController
                                                             .choosenHeadersFromHeaderList[
                                                                 index]
                                                             .toString()),
-                                                      ));
+                                                  ));
                                                 }),
-                                          rows: fileController.choosenRows.every(
-                                                  (subList) => subList.isEmpty)
-                                              ? _fileController.rows.map((element) {
+                                          rows: fileController.choosenRows
+                                                  .every((subList) =>
+                                                      subList.isEmpty)
+                                              ? _fileController.rows
+                                                  .map((element) {
                                                   return DataRow(
                                                       cells: List.generate(
-                                                          element.length, (index) {
+                                                          element.length,
+                                                          (index) {
                                                     return DataCell(SizedBox(
                                                       width: 50,
                                                       child: Text(
-                                                        overflow: TextOverflow.clip,
-                                                          element[index].toString()),
+                                                          overflow:
+                                                              TextOverflow.clip,
+                                                          element[index]
+                                                              .toString()),
                                                     ));
                                                   }));
                                                 }).toList()
@@ -240,14 +214,18 @@ class _FileDisplayState extends State<FileDisplay> {
                                                   .map((element) {
                                                   return DataRow(
                                                       cells: List.generate(
-                                                          element.length, (index) {
+                                                          element.length,
+                                                          (index) {
                                                     return DataCell(SizedBox(
                                                       width: 50,
                                                       child: FittedBox(
                                                         fit: BoxFit.scaleDown,
                                                         child: Text(
-                                                          overflow: TextOverflow.visible,
-                                                            element[index].toString()),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .visible,
+                                                            element[index]
+                                                                .toString()),
                                                       ),
                                                     ));
                                                   }));

@@ -35,9 +35,7 @@ class FileService {
     );
   }
 
-  Future<void> _onCreate(Database db, int version) async {
-    
-  }
+  Future<void> _onCreate(Database db, int version) async {}
 
   Future<void> createTable(String tableName) async {
     final db = await database;
@@ -93,16 +91,20 @@ class FileService {
 
   Future<void> insertDataIntoSqlite(
       String tableName, List<dynamic> columns, List<List<dynamic>> rows) async {
-   // final db = await database;
+    final db = await database;
 
     try {
-      for (int i = 0; i < columns.length; i++) {
-        for (int j = 0; j < rows.length; j++) {
-         await insertIntoTable(tableName, columns[i], rows[j][i].toString());
+      for (var row in rows) {
+        Map<String, dynamic> rowData = {};
+        
+        for (int i = 0; i < columns.length; i++) {
+          rowData[columns[i]] = row[i];
         }
+
+        await db.insert(tableName, rowData);
       }
     } catch (e) {
-      debugPrint("Error is this not $e");
+      debugPrint("Error inserting data: $e");
     }
   }
 
@@ -113,12 +115,8 @@ class FileService {
     try {
       // Retrieve all rows from the table
       List<Map<String, dynamic>> result =
-          await db.rawQuery('SELECT * FROM tailors');
+          await db.rawQuery('SELECT * FROM $tableName');
 
-      // You can return the result to the caller or process it as needed
-      for (int i = 0; i < result.length; i++) {
-        debugPrint("The value at the index$i is ${result[i]}");
-      }
       return result;
     } catch (e) {
       debugPrint("Error retrieving data: $e");
@@ -157,9 +155,8 @@ class FileService {
   }
 
   Future<void> insertIntoTable(
-      String tableName, String columnName, String rowValue) async {
+      String tableName, Map<String, dynamic> rowData) async {
     final db = await database;
-    String query = 'INSERT INTO $tableName ($columnName) VALUES ("$rowValue")';
-    await db.rawInsert(query);
+    await db.insert(tableName, rowData);
   }
 }

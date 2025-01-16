@@ -19,106 +19,112 @@ class HeadersDialog extends StatelessWidget {
         children: [
           Text(
               dialogFor != null ? dialogFor!.toUpperCase() : "Header Checking"),
-          IconButton(onPressed: ()
-          {   
-          _fileController.goBack(context);
-          
-          
-          }, icon:const  Icon(Icons.close)),
+          IconButton(
+              onPressed: () {
+                _fileController.goBack(context);
+              },
+              icon: const Icon(Icons.close)),
         ],
       ),
       content: GetBuilder<FileController>(builder: (controller) {
         return SingleChildScrollView(
           child: dialogFor != null
               ? headerSeletion()
-              : 
-             _fileController.isloading? Center(child:LoadingAnimationWidget.flickr(leftDotColor: Colors.red, rightDotColor: Colors.black, size: 35)): Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: controller.isContainHeaders != null &&
-                          controller.headers.isNotEmpty
-                      ? [
-                          ...List.generate(controller.headers.length, (index) {
-                            return Row(
-                              children: [
-                                Checkbox(
-                                    value: controller.selectedHeaders[index],
+              : _fileController.isloading
+                  ? Center(
+                      child: LoadingAnimationWidget.flickr(
+                          leftDotColor: Colors.red,
+                          rightDotColor: Colors.black,
+                          size: 35))
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: controller.isContainHeaders != null &&
+                              controller.headers.isNotEmpty
+                          ? [
+                              ...List.generate(controller.headers.length,
+                                  (index) {
+                                return Row(
+                                  children: [
+                                    Checkbox(
+                                        value:
+                                            controller.selectedHeaders[index],
+                                        onChanged: (value) {
+                                          controller.selectHeadersAndTheirData(
+                                              index, value!);
+                                        }),
+                                    const SizedBox(width: 5),
+                                    SizedBox(
+                                      width: 150,
+                                      child: Text(
+                                        controller.headers[index].isEmpty
+                                            ? "Headers ${index + 1}"
+                                            : controller.headers[index],
+                                        softWrap: true,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }),
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.black),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    if (controller.choosenHeadersFromHeaderList
+                                        .isNotEmpty) {
+                                      controller.showDataTable(true);
+                                    } else {
+                                      Get.snackbar("Choose Headers",
+                                          "Please Choose Headers",
+                                          backgroundColor: Colors.red,
+                                          colorText: Colors.white);
+                                    }
+                                  },
+                                  child: const Center(
+                                    child: Text(
+                                      "Done",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ))
+                            ]
+                          : [
+                              const Text("Does the file contain headers ?"),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text("Yes"),
+                                  Radio<bool>(
+                                    value: true,
+                                    groupValue: controller.isContainHeaders,
                                     onChanged: (value) {
-                                      controller.selectHeadersAndTheirData(
-                                          index, value!);
-                                    }),
-                                const SizedBox(width: 5),
-                                SizedBox(
-                                  width: 150,
-                                  child: Text(
-                                    controller.headers[index].isEmpty
-                                        ? "Headers ${index + 1}"
-                                        : controller.headers[index],
-                                    softWrap: true,
-                                    overflow: TextOverflow.ellipsis,
+                                      controller.checkContainHeaders(value!);
+                                    },
                                   ),
-                                ),
-                              ],
-                            );
-                          }),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black),
-                              onPressed: () {
-                                 Navigator.of(context).pop();
-                                if(controller.choosenHeadersFromHeaderList.isNotEmpty){
-                                  
-                               
-                                controller.showDataTable(true);
-                                }
-                                else{
-                                  Get.snackbar("Choose Headers", "Please Choose Headers",backgroundColor: Colors.red,colorText: Colors.white);
-                                }
-                              },
-                              child: const Center(
-                                child: Text(
-                                  "Done",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ))
-                        ]
-                      : [
-                          const Text("Does the file contain headers ?"),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text("Yes"),
-                              Radio<bool>(
-                                value: true,
-                                groupValue: controller.isContainHeaders,
-                                onChanged: (value) {
-                                  controller.checkContainHeaders(value!);
-                                },
+                                  const Text("No"),
+                                  Radio<bool>(
+                                    value: false,
+                                    groupValue: controller.isContainHeaders,
+                                    onChanged: (value) {
+                                      controller.checkContainHeaders(value!);
+                                    },
+                                  ),
+                                ],
                               ),
-                              const Text("No"),
-                              Radio<bool>(
-                                value: false,
-                                groupValue: controller.isContainHeaders,
-                                onChanged: (value) {
-                                  controller.checkContainHeaders(value!);
-                                },
-                              ),
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red),
+                                  onPressed: () {
+                                    Get.snackbar("Choose File",
+                                        "You can choose Your File Now");
+                                  },
+                                  child: const Center(
+                                    child: Text("Back"),
+                                  ))
                             ],
-                          ),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red),
-                              onPressed: () {
-
-                                Get.snackbar("Choose File",
-                                    "You can choose Your File Now");
-                              },
-                              child: const Center(
-                                child: Text("Back"),
-                              ))
-                        ],
-                ),
+                    ),
         );
       }),
     );
@@ -215,12 +221,13 @@ class HeadersDialog extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black),
                         onPressed: () async {
-                           _dataSaving.insertIntoTableWithOutNewHeaders(
-                        _fileController.choosenHeadersFromHeaderList,
-                        _fileController.choosenRows,
-                        _dataSaving.selectedTableName,
-                        );
-                         _dataSaving.deleteDatabase();
+                          // _dataSaving.deleteDatabase();
+
+                          _dataSaving.insertIntoTableWithOutNewHeaders(
+                            _fileController.choosenHeadersFromHeaderList,
+                            _fileController.choosenRows,
+                            _dataSaving.selectedTableName,
+                          );
                           await _dataSaving.getAllDataFromTable(
                               _dataSaving.selectedTableName.toString());
                           _dataSaving.clearController();

@@ -11,6 +11,7 @@ class DataSavingController extends GetxController {
   List<String> existingColumns = [];
   List<String> newHeaders = [];
   final FileController _fileController = Get.put(FileController());
+  List<Map<String, dynamic>> _dataWithOutHeaders = [];
 
   @override
   void onInit() async {
@@ -90,41 +91,28 @@ class DataSavingController extends GetxController {
     List<List<dynamic>> rows,
     String tableName,
   ) async {
-    final Map<String, List<dynamic>> rowDataMap =
-        {}; // Corrected type for value
-    var keysToRemove = [];
-
-    for (int i = 0; i < columns.length; i++) {
-      List<dynamic> columnData = []; // To hold all row values for this column
-
-      for (int j = 0; j < rows.length; j++) {
-        columnData.add(rows[j][i]); // Add each row's value for this column
+    debugPrint(
+        "The Length of Row is ${rows.length}  and $rows columns are ${columns.length} and $columns");
+    for (var row in rows) {
+      Map<String, dynamic> rowData = {};
+      // debugPrint(
+      //"Existing COlumns are $existingColumns and columns are $columns");
+      for (int i = 0; i < columns.length; i++) {
+        if (existingColumns.contains(columns[i])) {
+          rowData[columns[i]] = row[i];
+        } else {
+          debugPrint("New Header Exist in the Table ${columns[i]}");
+        }
       }
-
-      rowDataMap[columns[i]] =
-          columnData; // Map column to all values in that column
+      _dataWithOutHeaders.add(rowData);
     }
 
-    // For debugging, print the map to verify correct insertion
-    rowDataMap.forEach((key, value) {
-      if (!existingColumns.contains(key)) {
-        keysToRemove.add(key);
-      }
-    });
-    for (var key in keysToRemove) {
-      rowDataMap.remove(key);
+    debugPrint("The Whole data is $_dataWithOutHeaders");
+    for (var map in _dataWithOutHeaders) {
+      await _fileService.insertIntoTable(tableName, map);
     }
-
-    rowDataMap.forEach((key, value) {
-      debugPrint("The Key is $key and Value is $value");
-    });
-
-    rowDataMap.forEach((key, value) async {
-      for (int i = 0; i < value.length; i++) {
-        await _fileService.insertIntoTable(tableName, key, value[i].toString());
-      }
-    });
   }
 }
+
 
 //0EBB-CEA2

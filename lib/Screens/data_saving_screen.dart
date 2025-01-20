@@ -44,10 +44,9 @@ class DataSavingSreen extends StatelessWidget {
                     await controller
                         .getAllExistingColumns(controller.tables[index])
                         .then((value) {
-                         
-                     controller.getNewHeaders();
+                      controller.getNewHeaders();
                       controller
-                         .selecTable(controller.tables[index].toString());
+                          .selecTable(controller.tables[index].toString());
                     });
 
                     Get.dialog(
@@ -76,8 +75,7 @@ class DataSavingSreen extends StatelessWidget {
                     backgroundColor: Colors.black,
                   ),
                   onPressed: () {
-                    
-                     Get.dialog(CustomDialog(dialogfor: "table"));
+                    Get.dialog(CustomDialog(dialogfor: "table"));
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(15.0),

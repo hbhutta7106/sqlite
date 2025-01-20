@@ -221,7 +221,7 @@ class HeadersDialog extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black),
                         onPressed: () async {
-                          // _dataSaving.deleteDatabase();
+                         // _dataSaving.deleteDatabase();
 
                           _dataSaving.insertIntoTableWithOutNewHeaders(
                             _fileController.choosenHeadersFromHeaderList,

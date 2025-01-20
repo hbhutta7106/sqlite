@@ -32,6 +32,12 @@ class DataSavingController extends GetxController {
     await _fileService.createTable(tableNameController.text);
     tables = await _fileService.getTables();
     tableNameController.clear();
+    Get.snackbar(
+      "Table Created",
+      "You can save data now in database",
+      snackPosition: SnackPosition.BOTTOM,
+      margin: const EdgeInsets.all(10.0),
+    );
     update();
   }
 
@@ -72,7 +78,16 @@ class DataSavingController extends GetxController {
 
   void insertDataIntoTable(
       String tableName, List<dynamic> columns, List<List<dynamic>> rows) async {
-    await _fileService.insertDataIntoSqlite(tableName, columns, rows);
+    await _fileService
+        .insertDataIntoSqlite(tableName, columns, rows)
+        .then((value) {
+      Get.snackbar(
+        "Data inserted",
+        "You Data has been stored in the database",
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(10.0),
+      );
+    });
   }
 
   void clearController() {

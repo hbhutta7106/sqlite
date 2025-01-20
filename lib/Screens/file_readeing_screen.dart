@@ -109,34 +109,50 @@ class _FileDisplayState extends State<FileDisplay> {
                         ),
                       )
                     : _fileController.csvData.isEmpty
-                        ? Column(
-                            children: [
-                              ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.black),
-                                  onPressed: () {
+                        ? Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                InkWell(
+                                  splashColor: Colors.green,
+                                  onTap: () {
                                     Get.dialog(
                                       ChooseHeaderDialog(),
+                                      barrierDismissible: false,
                                     );
-                                    // if (_fileController.isContainHeaders !=
-                                    //     null) {
-                                    //   // _fileController.pickFile();
-                                    // } else {
-                                    //   Get.snackbar("Error",
-                                    //       "Please Select the Headers Value",
-                                    //       backgroundColor: Colors.red,
-                                    //       colorText: Colors.white);
-                                    // }
                                   },
-                                  child: const Center(
-                                    child: Text(
-                                      "Pick File ",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
+                                  child: Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.7,
+                                    height:
+                                        MediaQuery.of(context).size.width * 0.4,
+                                    decoration: BoxDecoration(
+                                      color: Colors.green[100],
+                                      borderRadius: BorderRadius.circular(15.0),
                                     ),
-                                  )),
-                            ],
+                                    child: Center(
+                                      child: IconButton(
+                                          onPressed: () {
+                                            Get.dialog(
+                                              ChooseHeaderDialog(),
+                                              barrierDismissible: false,
+                                            );
+                                          },
+                                          icon: const Icon(
+                                            Icons.upload_file,
+                                            color: Colors.black26,
+                                            size: 65,
+                                          )),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                              ],
+                            ),
                           )
                         : _fileController.showTable
                             ? SizedBox(
@@ -163,16 +179,10 @@ class _FileDisplayState extends State<FileDisplay> {
                                                   _fileController.rows[0].length,
                                                   (index) {
                                                   return DataColumn(
-                                                      label: SizedBox(
-                                                    width: 50,
-                                                    child: FittedBox(
-                                                      fit: BoxFit.scaleDown,
-                                                      child: Text(
-                                                        "Column ${index + 1}",
-                                                        overflow: TextOverflow
-                                                            .visible,
-                                                      ),
-                                                    ),
+                                                      label: Text(
+                                                    "Column ${index + 1}",
+                                                    overflow:
+                                                        TextOverflow.visible,
                                                   ));
                                                 })
                                               : List.generate(
@@ -216,18 +226,11 @@ class _FileDisplayState extends State<FileDisplay> {
                                                       cells: List.generate(
                                                           element.length,
                                                           (index) {
-                                                    return DataCell(SizedBox(
-                                                      width: 50,
-                                                      child: FittedBox(
-                                                        fit: BoxFit.scaleDown,
-                                                        child: Text(
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .visible,
-                                                            element[index]
-                                                                .toString()),
-                                                      ),
-                                                    ));
+                                                    return DataCell(Text(
+                                                        overflow: TextOverflow
+                                                            .visible,
+                                                        element[index]
+                                                            .toString()));
                                                   }));
                                                 }).toList()),
                                     ),

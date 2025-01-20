@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sqlite_crud/Screens/file_readeing_screen.dart';
 import 'package:sqlite_crud/controller/file_controller.dart';
 
 class ChooseHeaderDialog extends StatelessWidget {
@@ -11,8 +12,6 @@ class ChooseHeaderDialog extends StatelessWidget {
   final List<List<String>> rows = const [
     ['Hanan', '24'],
     ['subhan', '15']
-    
-
   ];
 
   @override
@@ -163,7 +162,19 @@ class ChooseHeaderDialog extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           Get.back();
-                          _fileController.pickFile();
+                          if (_fileController.isContainHeaders != null) {
+                            _fileController.pickFile();
+                            Get.offAll(
+                             const  FileDisplay(),
+                            );
+                          } else {
+                            Get.snackbar(
+                                snackPosition: SnackPosition.BOTTOM,
+                                margin: const EdgeInsets.all(10.0),
+                                backgroundColor: Colors.green[200],
+                                "Header checking",
+                                "Choose formate to view file, With headers or without headers.");
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.all(10.0),
@@ -189,7 +200,6 @@ class ChooseHeaderDialog extends StatelessWidget {
                         ),
                         onPressed: () {
                           Get.back();
-                          
                         },
                         child: const Center(
                           child: Text(

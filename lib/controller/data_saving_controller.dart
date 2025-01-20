@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:sqlite_crud/controller/file_controller.dart';
@@ -35,6 +36,7 @@ class DataSavingController extends GetxController {
     Get.snackbar(
       "Table Created",
       "You can save data now in database",
+      backgroundColor: Colors.green[200],
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(10.0),
     );
